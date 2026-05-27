@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Just Us</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream: #FAF7F2;
+  --warm: #F0EAE0;
+  --sand: #E8DFD0;
+  --clay: #C4A882;
+  --rust: #A0522D;
+  --bark: #6B4226;
+  --ink: #2C1810;
+  --muted: #8C7B6E;
+  --light-muted: #B5A898;
+  --white: #FFFFFF;
+  --success: #5C7A5A;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+/* ── LOGIN ── */
+#login-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; background: var(--cream); }
+.login-emblem { font-family: 'Cormorant Garamond', serif; font-size: 52px; color: var(--clay); margin-bottom: 8px; letter-spacing: -1px; }
+.login-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; color: var(--ink); margin-bottom: 4px; }
+.login-sub { font-size: 13px; color: var(--light-muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2.5rem; }
+.login-box { background: var(--white); border: 1px solid var(--sand); border-radius: 16px; padding: 2rem; width: 100%; max-width: 360px; box-shadow: 0 2px 24px rgba(44,24,16,.06); }
+.login-box label { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.login-box input[type=password] { width: 100%; border: 1px solid var(--sand); border-radius: 10px; padding: 12px 16px; font-size: 16px; font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); letter-spacing: .15em; outline: none; transition: border-color .2s; }
+.login-box input[type=password]:focus { border-color: var(--clay); }
+.login-error { font-size: 13px; color: var(--rust); margin-top: 8px; min-height: 18px; }
+.login-btn { width: 100%; margin-top: 1.25rem; padding: 13px; background: var(--bark); color: var(--cream); border: none; border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; letter-spacing: .05em; cursor: pointer; transition: background .2s, transform .1s; }
+.login-btn:hover { background: var(--rust); }
+.login-btn:active { transform: scale(.98); }
+.login-note { margin-top: 1.25rem; font-size: 12px; color: var(--light-muted); text-align: center; line-height: 1.6; }
+
+/* ── APP SHELL ── */
+#app { display: none; flex-direction: column; min-height: 100vh; }
+#app.visible { display: flex; }
+.top-bar { background: var(--white); border-bottom: 1px solid var(--sand); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+.top-bar-brand { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: var(--ink); letter-spacing: -.3px; }
+.top-bar-brand span { color: var(--clay); }
+.logout-btn { background: none; border: 1px solid var(--sand); border-radius: 8px; padding: 5px 12px; font-size: 12px; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+.logout-btn:hover { border-color: var(--clay); color: var(--bark); }
+.countdown-bar { background: var(--bark); color: var(--cream); text-align: center; padding: 10px; font-size: 13px; letter-spacing: .04em; }
+.countdown-bar strong { font-weight: 500; margin: 0 4px; }
+.main-content { flex: 1; max-width: 680px; width: 100%; margin: 0 auto; padding: 1.5rem 1rem 5rem; }
+
+/* ── NAV ── */
+.nav-tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab { flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--sand); background: var(--white); font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--muted); cursor: pointer; transition: all .15s; white-space: nowrap; }
+.nav-tab:hover { border-color: var(--clay); color: var(--bark); }
+.nav-tab.active { background: var(--bark); border-color: var(--bark); color: var(--cream); }
+
+/* ── PANELS ── */
+.panel { display: none; animation: fadeIn .2s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ── CARDS ── */
+.card { background: var(--white); border: 1px solid var(--sand); border-radius: 14px; padding: 1.25rem; margin-bottom: 14px; }
+.card h3 { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 400; color: var(--ink); margin-bottom: 1rem; }
+.card-muted { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* ── WHO PICKER ── */
+.who-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+.who-btn { flex: 1; padding: 8px; text-align: center; border: 1px solid var(--sand); border-radius: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; color: var(--muted); background: var(--cream); transition: all .15s; }
+.who-btn.active { background: var(--bark); border-color: var(--bark); color: var(--cream); }
+
+/* ── MOOD ── */
+.mood-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+.mood-btn { padding: 6px 13px; border-radius: 20px; border: 1px solid var(--sand); background: var(--cream); font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; color: var(--muted); transition: all .15s; }
+.mood-btn.sel { border-color: var(--clay); background: var(--warm); color: var(--bark); font-weight: 500; }
+
+/* ── INPUTS ── */
+textarea, input[type=text] { width: 100%; border: 1px solid var(--sand); border-radius: 10px; padding: 10px 14px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--cream); outline: none; transition: border-color .2s; resize: vertical; }
+textarea { min-height: 80px; }
+textarea:focus, input[type=text]:focus { border-color: var(--clay); background: var(--white); }
+.btn { padding: 9px 20px; border-radius: 10px; border: 1px solid var(--sand); background: var(--white); font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--ink); cursor: pointer; transition: all .15s; }
+.btn:hover { border-color: var(--clay); }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--bark); border-color: var(--bark); color: var(--cream); font-weight: 500; }
+.btn-primary:hover { background: var(--rust); border-color: var(--rust); }
+
+/* ── ENTRIES ── */
+.entry { padding: 12px 0; border-bottom: 1px solid var(--warm); font-size: 14px; line-height: 1.6; color: var(--muted); }
+.entry:last-child { border-bottom: none; padding-bottom: 0; }
+.entry-meta { font-size: 12px; color: var(--light-muted); margin-bottom: 4px; }
+.entry-name { font-weight: 500; color: var(--bark); }
+.entry-mood { background: var(--warm); border-radius: 10px; padding: 1px 8px; font-size: 11px; margin-left: 6px; }
+
+/* ── GRATITUDE WALL ── */
+.gratitude-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+@media (max-width: 480px) { .gratitude-grid { grid-template-columns: 1fr; } }
+.g-note { background: var(--warm); border-radius: 12px; padding: 14px; font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--ink); line-height: 1.6; }
+.g-note-from { font-size: 11px; font-style: normal; color: var(--light-muted); margin-top: 8px; font-family: 'DM Sans', sans-serif; }
+
+/* ── PROMPT ── */
+.prompt-card { background: var(--bark); border-radius: 14px; padding: 1.75rem 1.5rem; text-align: center; margin-bottom: 14px; }
+.prompt-tag { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--clay); margin-bottom: .75rem; }
+.prompt-text { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; color: var(--cream); line-height: 1.5; margin-bottom: 1.25rem; font-style: italic; }
+.btn-outline-cream { border-color: rgba(250,247,242,.3); color: var(--cream); background: transparent; }
+.btn-outline-cream:hover { background: rgba(250,247,242,.1); border-color: rgba(250,247,242,.6); }
+
+/* ── LETTERS ── */
+.letter-item { padding: 14px 0; border-bottom: 1px solid var(--warm); cursor: pointer; transition: padding-left .15s; }
+.letter-item:last-child { border-bottom: none; }
+.letter-item:hover { padding-left: 6px; }
+.letter-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.letter-item-from { font-size: 14px; font-weight: 500; color: var(--ink); }
+.letter-item-date { font-size: 12px; color: var(--light-muted); }
+.letter-preview { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.unread-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rust); display: inline-block; margin-left: 7px; vertical-align: middle; }
+.letter-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(44,24,16,.5); z-index: 200; align-items: center; justify-content: center; padding: 1.5rem; }
+.letter-modal-overlay.open { display: flex; }
+.letter-modal { background: var(--white); border-radius: 16px; padding: 1.75rem; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto; }
+.letter-modal-from { font-size: 12px; color: var(--light-muted); margin-bottom: 6px; }
+.letter-modal-body { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; line-height: 1.8; color: var(--ink); white-space: pre-wrap; }
+.letter-modal-close { margin-top: 1.5rem; }
+
+/* ── GOALS ── */
+.goal-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--warm); }
+.goal-item:last-child { border-bottom: none; }
+.goal-cb { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--clay); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all .2s; color: transparent; font-size: 13px; }
+.goal-cb.done { background: var(--success); border-color: var(--success); color: white; }
+.goal-txt { font-size: 14px; color: var(--ink); flex: 1; }
+.goal-txt.done { color: var(--light-muted); text-decoration: line-through; }
+.goal-del { font-size: 18px; color: var(--sand); cursor: pointer; padding: 0 4px; transition: color .15s; }
+.goal-del:hover { color: var(--rust); }
+.add-row { display: flex; gap: 8px; margin-top: 12px; }
+.add-row input { flex: 1; min-height: unset; }
+
+/* ── VIEW TOGGLE ── */
+.view-toggle { display: flex; gap: 6px; margin-bottom: 1rem; }
+.vt-btn { flex: 1; padding: 8px; text-align: center; border: 1px solid var(--sand); border-radius: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; color: var(--muted); background: var(--cream); transition: all .15s; }
+.vt-btn.active { background: var(--bark); border-color: var(--bark); color: var(--cream); }
+
+/* ── MISC ── */
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(250,247,242,.3); border-top-color: var(--cream); border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bark); color: var(--cream); padding: 10px 22px; border-radius: 20px; font-size: 13px; opacity: 0; transition: all .3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.section-loading { text-align: center; padding: 2rem; color: var(--light-muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-emblem">♡</div>
+  <div class="login-title">Just Us</div>
+  <div class="login-sub">A private space for two</div>
+  <div class="login-box">
+    <label for="pw-input">Password</label>
+    <input type="password" id="pw-input" placeholder="Enter your shared password" autocomplete="current-password"/>
+    <div class="login-error" id="login-error"></div>
+    <button class="login-btn" onclick="doLogin()">Enter</button>
+    <div class="login-note">This is a private space for you and your partner only.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="top-bar">
+    <div class="top-bar-brand">Just <span>Us</span></div>
+    <button class="logout-btn" onclick="doLogout()">Sign out</button>
+  </div>
+
+  <div class="countdown-bar" id="countdown-bar">Loading...</div>
+
+  <div class="main-content">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('checkin',this)">Check-in</button>
+      <button class="nav-tab" onclick="showTab('gratitude',this)">Gratitude</button>
+      <button class="nav-tab" onclick="showTab('letters',this)">Letters</button>
+      <button class="nav-tab" onclick="showTab('goals',this)">Our List</button>
+    </div>
+
+    <!-- CHECK-IN -->
+    <div id="panel-checkin" class="panel active">
+      <div class="card">
+        <h3>How are you today?</h3>
+        <div class="who-row">
+          <button class="who-btn active" id="ci-her" onclick="setWho('ci','her')">Her</button>
+          <button class="who-btn" id="ci-him" onclick="setWho('ci','him')">Him</button>
+        </div>
+        <div class="mood-row" id="mood-btns"></div>
+        <textarea id="ci-text" placeholder="What's on your mind? Even just a sentence..."></textarea>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="submitCheckin()" id="ci-btn">Send check-in</button>
+      </div>
+      <div class="card">
+        <h3>Recent check-ins</h3>
+        <div id="ci-feed"><div class="section-loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- GRATITUDE -->
+    <div id="panel-gratitude" class="panel">
+      <div class="card">
+        <h3>Leave a note of appreciation</h3>
+        <div class="who-row">
+          <button class="who-btn active" id="gr-her" onclick="setWho('gr','her')">Her</button>
+          <button class="who-btn" id="gr-him" onclick="setWho('gr','him')">Him</button>
+        </div>
+        <textarea id="gr-text" placeholder="Something you love, appreciate, or admire..."></textarea>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="submitGratitude()" id="gr-btn">Post to wall</button>
+      </div>
+      <div class="gratitude-grid" id="gr-wall"><div class="section-loading" style="grid-column:1/-1">Loading...</div></div>
+    </div>
+
+    <!-- LETTERS (with optional prompt) -->
+    <div id="panel-letters" class="panel">
+      <div class="prompt-card">
+        <div class="prompt-tag" id="p-tag">Memory</div>
+        <div class="prompt-text" id="p-text">"What's a moment from early in our relationship that still makes you smile?"</div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-outline-cream" onclick="newPrompt()">New prompt →</button>
+          <button class="btn btn-outline-cream" onclick="usePrompt()">Use this prompt ↓</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Write a letter</h3>
+        <div class="who-row">
+          <button class="who-btn active" id="lt-her" onclick="setWho('lt','her')">Her</button>
+          <button class="who-btn" id="lt-him" onclick="setWho('lt','him')">Him</button>
+        </div>
+        <textarea id="lt-text" style="min-height:180px" placeholder="Write whatever's in your heart — answer a prompt above, or just say what's on your mind..."></textarea>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:10px">
+          <button class="btn btn-primary" onclick="sendLetter()" id="lt-btn">Send letter</button>
+          <span style="font-size:12px;color:var(--light-muted)">Only you two can read it</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Inbox</h3>
+        <div id="lt-feed"><div class="section-loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- GOALS -->
+    <div id="panel-goals" class="panel">
+      <div class="card">
+        <h3>Things to do when you're home</h3>
+        <div id="goal-list"><div class="section-loading">Loading...</div></div>
+        <div class="add-row">
+          <input type="text" id="goal-input" placeholder="Add something to look forward to..."/>
+          <button class="btn btn-primary" onclick="addGoal()">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LETTER MODAL -->
+<div class="letter-modal-overlay" id="letter-modal-overlay" onclick="closeLetter(event)">
+  <div class="letter-modal">
+    <div class="letter-modal-from" id="lm-from"></div>
+    <div class="letter-modal-body" id="lm-body"></div>
+    <button class="btn letter-modal-close" onclick="closeLetter()">Close</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+// STEP 1: Replace the password below with your shared password.
+const SHARED_PASSWORD = "oursecret";
+
+// STEP 2: Paste your Firebase config here (or use the Settings tab at runtime).
+const FB_CONFIG = {
+  apiKey: "AIzaSyARwS0BuTcN3rUjQLpGS7f0bjmS3Gu1KZM",
+  authDomain: "together-apart-36794.firebaseapp.com",
+  projectId: "together-apart-36794",
+  storageBucket: "together-apart-36794.firebasestorage.app",
+  messagingSenderId: "379140197917",
+  appId: "1:379140197917:web:4a43fbad439f684c7880f4"
+};
+
+// Homecoming date
+const HOMECOMING = new Date('2026-10-31T00:00:00');
+// ─────────────────────────────────────────────────────────────────────────────
+
+const app = initializeApp(FB_CONFIG);
+const db = getFirestore(app);
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+const state = {
+  ciWho: 'her', grWho: 'her', ltWho: 'her',
+  ciMood: '', promptIdx: 0,
+  names: { her: 'Her', him: 'Him' }
+};
+
+const PROMPTS = [
+  // Memory
+  { tag:'Memory',    text:'What\'s a moment from early in our relationship that still makes you smile?' },
+  { tag:'Memory',    text:'What\'s the first thing you said to me that you remember clearly?' },
+  { tag:'Memory',    text:'What\'s a trip or adventure we took that you still think about?' },
+  { tag:'Memory',    text:'What\'s a small, ordinary moment with me that turned out to mean a lot?' },
+  { tag:'Memory',    text:'When did you first know you were in love with me?' },
+  { tag:'Memory',    text:'What\'s something we laughed about together that still makes you smile?' },
+
+  // Future
+  { tag:'Future',    text:'What\'s the first thing you want to do when we\'re finally together again?' },
+  { tag:'Future',    text:'What does our home feel like in your ideal future — describe it in detail.' },
+  { tag:'Future',    text:'What\'s a tradition you want us to start when you\'re home?' },
+  { tag:'Future',    text:'Where do you want us to be as a couple one year from now?' },
+  { tag:'Future',    text:'What\'s a dream you have for us that you\'ve never said out loud?' },
+  { tag:'Future',    text:'If we could live anywhere in the world together, where would you choose and why?' },
+
+  // Gratitude
+  { tag:'Gratitude', text:'What\'s something your partner did that you never properly thanked them for?' },
+  { tag:'Gratitude', text:'What\'s something I do that makes your life easier that you might take for granted?' },
+  { tag:'Gratitude', text:'What quality in me are you most grateful for right now?' },
+  { tag:'Gratitude', text:'When have I shown up for you in a way that really mattered?' },
+  { tag:'Gratitude', text:'What\'s something about our relationship you would never trade, even on the hard days?' },
+
+  // Trust
+  { tag:'Trust',     text:'What does feeling truly safe with someone look like to you?' },
+  { tag:'Trust',     text:'Is there a moment where I rebuilt your trust in me? What did that mean to you?' },
+  { tag:'Trust',     text:'What\'s one thing I could do consistently that would help you feel more secure in us?' },
+  { tag:'Trust',     text:'What does loyalty mean to you — beyond just faithfulness?' },
+  { tag:'Trust',     text:'What\'s something you\'ve been afraid to trust me with? What would help?' },
+  { tag:'Trust',     text:'When do you feel most confident in us? What creates that feeling?' },
+  { tag:'Trust',     text:'Is there something from our past that still quietly affects how you trust? Can you share it?' },
+
+  // Communication
+  { tag:'Communication', text:'What\'s something you\'ve wanted to say to me but haven\'t found the right moment for?' },
+  { tag:'Communication', text:'When do you feel most heard by me? What am I doing in those moments?' },
+  { tag:'Communication', text:'What\'s a topic we tend to avoid that you wish we could talk about more openly?' },
+  { tag:'Communication', text:'How do you prefer to work through conflict — and what do you need from me during it?' },
+  { tag:'Communication', text:'What\'s something I do that unintentionally shuts you down? I want to know.' },
+  { tag:'Communication', text:'What does a good apology look like to you? What makes you feel genuinely forgiven?' },
+  { tag:'Communication', text:'When you\'re struggling, what do you need most — advice, or just to be heard?' },
+  { tag:'Communication', text:'Is there a misunderstanding between us that never got fully resolved? Let\'s try again.' },
+
+  // Growth
+  { tag:'Growth',    text:'What\'s one thing you want us to do differently — and how can I help?' },
+  { tag:'Growth',    text:'What\'s something you\'ve learned about yourself during this deployment?' },
+  { tag:'Growth',    text:'What\'s a pattern in our relationship you\'d like us to break together?' },
+  { tag:'Growth',    text:'What does a healthy relationship look like to you — what are the non-negotiables?' },
+  { tag:'Growth',    text:'What\'s one habit you\'d like to build together when you\'re home?' },
+  { tag:'Growth',    text:'What\'s something hard we\'ve been through that you\'re proud we survived?' },
+  { tag:'Growth',    text:'What would you want us to work on with a couples counselor if we ever tried it?' },
+
+  // Love
+  { tag:'Love',      text:'When do you feel most loved by me? I want to do more of that.' },
+  { tag:'Love',      text:'How has the way you love me changed since we first got together?' },
+  { tag:'Love',      text:'What\'s something I do without realizing it that makes you feel deeply cared for?' },
+  { tag:'Love',      text:'What does love mean to you right now — in this season of life?' },
+  { tag:'Love',      text:'What\'s something you love about me that you don\'t say enough?' },
+  { tag:'Love',      text:'How do you want to be loved differently than you have been? Be honest.' },
+
+  // Deep
+  { tag:'Deep',      text:'What do you wish I understood better about what you\'re going through?' },
+  { tag:'Deep',      text:'What\'s your biggest fear about us — and what would make it smaller?' },
+  { tag:'Deep',      text:'What do you need from this relationship that you\'re not getting right now?' },
+  { tag:'Deep',      text:'What\'s something about yourself you\'re still figuring out?' },
+  { tag:'Deep',      text:'What does home mean to you — not the place, but the feeling?' },
+  { tag:'Deep',      text:'What\'s the hardest part of this distance that you haven\'t fully admitted yet?' },
+  { tag:'Deep',      text:'What do you want our relationship to stand for — what\'s its purpose beyond just the two of us?' },
+
+  // Playful
+  { tag:'Playful',   text:'If we could teleport anywhere together right now, where would you take us?' },
+  { tag:'Playful',   text:'What\'s a ridiculous adventure you want us to go on together someday?' },
+  { tag:'Playful',   text:'If we had a whole week with no responsibilities, how would you spend it?' },
+  { tag:'Playful',   text:'What\'s something on your bucket list that you\'d want me there for?' },
+  { tag:'Playful',   text:'What song do you think is ours right now, in this moment?' },
+  { tag:'Playful',   text:'If you could plan our perfect homecoming day from start to finish, what would it look like?' },
+
+  // Dream
+  { tag:'Dream',     text:'What does our life look like five years from now — paint the picture.' },
+  { tag:'Dream',     text:'What kind of old couple do you want us to be?' },
+  { tag:'Dream',     text:'What\'s something you\'ve always wanted to build or create together?' },
+  { tag:'Dream',     text:'If money and time were no issue, what would our life look like?' },
+
+  // Simple
+  { tag:'Simple',    text:'What tiny everyday thing do you miss most about being together?' },
+  { tag:'Simple',    text:'What\'s a smell, sound, or place that instantly makes you think of me?' },
+  { tag:'Simple',    text:'What\'s something small I do that you hope I never stop doing?' },
+  { tag:'Simple',    text:'What\'s the most ordinary moment with me that felt extraordinary?' },
+  { tag:'Simple',    text:'What do you want our Sunday mornings to look like when you\'re home?' },
+
+  // Hard
+  { tag:'Hard',      text:'Is there something unsaid between us that you\'ve been carrying? I\'m ready to listen.' },
+  { tag:'Hard',      text:'What\'s something you\'ve never forgiven yourself for in our relationship?' },
+  { tag:'Hard',      text:'Is there a version of me you\'ve lost faith in? What would bring it back?' },
+  { tag:'Hard',      text:'What\'s the most honest thing you could say about where we are right now?' },
+  { tag:'Hard',      text:'What would you need to see from me to feel like we\'ve truly turned a corner?' },
+  { tag:'Hard',      text:'What are you most afraid to ask me — and can you ask it now?' },
+];
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2600);
+}
+function fmtDate(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+// ── LOGIN ────────────────────────────────────────────────────────────────────
+window.doLogin = function() {
+  const val = document.getElementById('pw-input').value;
+  const err = document.getElementById('login-error');
+  if (val === SHARED_PASSWORD) {
+    sessionStorage.setItem('auth', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    startCountdown();
+    loadCheckins();
+    loadGratitude();
+  } else {
+    err.textContent = 'That password isn\'t right. Try again.';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+};
+document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+window.doLogout = function() {
+  sessionStorage.removeItem('auth');
+  location.reload();
+};
+
+if (sessionStorage.getItem('auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  startCountdown();
+  loadCheckins();
+  loadGratitude();
+}
+
+// ── COUNTDOWN ────────────────────────────────────────────────────────────────
+function startCountdown() {
+  function tick() {
+    const bar = document.getElementById('countdown-bar');
+    const diff = HOMECOMING - new Date();
+    if (diff <= 0) { bar.textContent = 'Welcome home 🎉'; return; }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    bar.innerHTML = `<strong>${d}</strong> days <strong>${String(h).padStart(2,'0')}</strong>:<strong>${String(m).padStart(2,'0')}</strong>:<strong>${String(s).padStart(2,'0')}</strong> until Homecoming`;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+window.showTab = function(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'letters') loadLetters();
+  if (id === 'goals') loadGoals();
+};
+
+// ── WHO PICKER ───────────────────────────────────────────────────────────────
+window.setWho = function(prefix, who) {
+  state[prefix + 'Who'] = who;
+  ['her','him'].forEach(w => {
+    const el = document.getElementById(prefix + '-' + w);
+    if (el) el.classList.toggle('active', w === who);
+  });
+};
+
+// ── MOOD ─────────────────────────────────────────────────────────────────────
+const MOODS = ['🌟 Great','😊 Good','😐 Okay','😔 Missing you','😤 Frustrated','😴 Exhausted'];
+(function buildMoods() {
+  const row = document.getElementById('mood-btns');
+  MOODS.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'mood-btn';
+    b.textContent = m;
+    b.onclick = function() {
+      document.querySelectorAll('.mood-btn').forEach(x => x.classList.remove('sel'));
+      this.classList.add('sel');
+      state.ciMood = m;
+    };
+    row.appendChild(b);
+  });
+})();
+
+// ── CHECK-IN ─────────────────────────────────────────────────────────────────
+window.submitCheckin = async function() {
+  const text = document.getElementById('ci-text').value.trim();
+  if (!text) { toast('Write something first ♡'); return; }
+  const btn = document.getElementById('ci-btn');
+  btn.innerHTML = '<span class="spinner"></span> Sending...';
+  btn.disabled = true;
+  try {
+    await addDoc(collection(db,'checkins'), {
+      who: state.ciWho, name: state.names[state.ciWho],
+      mood: state.ciMood, text, ts: new Date()
+    });
+    document.getElementById('ci-text').value = '';
+    state.ciMood = '';
+    document.querySelectorAll('.mood-btn').forEach(x => x.classList.remove('sel'));
+    toast('Check-in sent ♡');
+    try { await loadCheckins(); } catch(_){}
+  } catch(e) { toast('Error: ' + e.message); }
+  finally {
+    btn.innerHTML = 'Send check-in';
+    btn.disabled = false;
+  }
+};
+async function loadCheckins() {
+  const feed = document.getElementById('ci-feed');
+  try {
+    const q = query(collection(db,'checkins'), orderBy('ts','desc'), limit(500));
+    const snap = await getDocs(q);
+    if (snap.empty) { feed.innerHTML = '<p class="card-muted">No check-ins yet. Send the first one ♡</p>'; return; }
+    feed.innerHTML = snap.docs.map(d => {
+      const r = d.data();
+      return `<div class="entry"><div class="entry-meta"><span class="entry-name">${r.name||r.who}</span>${r.mood?`<span class="entry-mood">${r.mood}</span>`:''} &middot; ${fmtDate(r.ts)}</div>${r.text}</div>`;
+    }).join('');
+  } catch(e) { feed.innerHTML = '<p class="card-muted">Could not load check-ins.</p>'; }
+}
+
+// ── GRATITUDE ─────────────────────────────────────────────────────────────────
+window.submitGratitude = async function() {
+  const text = document.getElementById('gr-text').value.trim();
+  if (!text) { toast('Write something first ♡'); return; }
+  const btn = document.getElementById('gr-btn');
+  btn.innerHTML = '<span class="spinner"></span> Posting...';
+  btn.disabled = true;
+  try {
+    await addDoc(collection(db,'gratitude'), { who: state.grWho, name: state.names[state.grWho], text, ts: new Date() });
+    document.getElementById('gr-text').value = '';
+    toast('Posted to the wall ♡');
+    try { await loadGratitude(); } catch(_){}
+  } catch(e) { toast('Error: ' + e.message); }
+  finally {
+    btn.innerHTML = 'Post to wall';
+    btn.disabled = false;
+  }
+};
+async function loadGratitude() {
+  const wall = document.getElementById('gr-wall');
+  try {
+    const q = query(collection(db,'gratitude'), orderBy('ts','desc'), limit(500));
+    const snap = await getDocs(q);
+    if (snap.empty) { wall.innerHTML = '<p class="card-muted" style="grid-column:1/-1">No notes yet — leave the first one ♡</p>'; return; }
+    wall.innerHTML = snap.docs.map(d => {
+      const r = d.data();
+      return `<div class="g-note">${r.text}<div class="g-note-from">— ${r.name||r.who}, ${fmtDate(r.ts)}</div></div>`;
+    }).join('');
+  } catch(e) { wall.innerHTML = '<p class="card-muted" style="grid-column:1/-1">Could not load notes.</p>'; }
+}
+
+// ── PROMPTS ──────────────────────────────────────────────────────────────────
+window.newPrompt = function() {
+  state.promptIdx = (state.promptIdx + 1) % PROMPTS.length;
+  const p = PROMPTS[state.promptIdx];
+  document.getElementById('p-tag').textContent = p.tag;
+  document.getElementById('p-text').textContent = `"${p.text}"`;
+};
+window.usePrompt = function() {
+  const p = PROMPTS[state.promptIdx];
+  const ta = document.getElementById('lt-text');
+  ta.value = p.text + '\n\n';
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+};
+
+
+// ── LETTERS ──────────────────────────────────────────────────────────────────
+
+window.sendLetter = async function() {
+  const text = document.getElementById('lt-text').value.trim();
+  if (!text) { toast('Write something first ♡'); return; }
+  const btn = document.getElementById('lt-btn');
+  btn.innerHTML = '<span class="spinner"></span> Sending...';
+  btn.disabled = true;
+  try {
+    await addDoc(collection(db,'letters'), { who: state.ltWho, name: state.names[state.ltWho], text, read: false, ts: new Date() });
+    document.getElementById('lt-text').value = '';
+    toast('Letter sent ♡');
+  } catch(e) { toast('Error: ' + e.message); }
+  finally {
+    btn.innerHTML = 'Send letter';
+    btn.disabled = false;
+  }
+};
+async function loadLetters() {
+  const feed = document.getElementById('lt-feed');
+  try {
+    const q = query(collection(db,'letters'), orderBy('ts','desc'), limit(500));
+    const snap = await getDocs(q);
+    if (snap.empty) { feed.innerHTML = '<p class="card-muted">No letters yet. Write the first one ♡</p>'; return; }
+    feed.innerHTML = snap.docs.map(d => {
+      const r = d.data(); const id = d.id;
+      return `<div class="letter-item" onclick="openLetter('${id}','${(r.name||r.who).replace(/'/g,"\\'")}','${fmtDate(r.ts)}','${r.text.replace(/'/g,"\\'").replace(/\n/g,'\\n')}',this)">
+        <div class="letter-item-head">
+          <span class="letter-item-from">${r.name||r.who}${!r.read?'<span class="unread-dot"></span>':''}</span>
+          <span class="letter-item-date">${fmtDate(r.ts)}</span>
+        </div>
+        <div class="letter-preview">${r.text.substring(0,100)}${r.text.length>100?'...':''}</div>
+      </div>`;
+    }).join('');
+  } catch(e) { feed.innerHTML = '<p class="card-muted">Could not load letters.</p>'; }
+}
+window.openLetter = async function(id, name, date, text, el) {
+  document.getElementById('lm-from').textContent = `From ${name} · ${date}`;
+  document.getElementById('lm-body').textContent = text.replace(/\\n/g,'\n');
+  document.getElementById('letter-modal-overlay').classList.add('open');
+  const dot = el.querySelector('.unread-dot');
+  if (dot) { dot.remove(); try { await updateDoc(doc(db,'letters',id), { read: true }); } catch(e){} }
+};
+window.closeLetter = function(e) {
+  if (!e || e.target === document.getElementById('letter-modal-overlay') || !e.target.closest('.letter-modal')) {
+    document.getElementById('letter-modal-overlay').classList.remove('open');
+  }
+};
+
+// ── GOALS ────────────────────────────────────────────────────────────────────
+window.addGoal = async function() {
+  const inp = document.getElementById('goal-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  try {
+    await addDoc(collection(db,'goals'), { text, done: false, ts: new Date() });
+    inp.value = '';
+    loadGoals();
+    toast('Added ♡');
+  } catch(e) { toast('Error saving.'); }
+};
+document.getElementById('goal-input').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
+async function loadGoals() {
+  const list = document.getElementById('goal-list');
+  try {
+    const q = query(collection(db,'goals'), orderBy('ts','asc'));
+    const snap = await getDocs(q);
+    if (snap.empty) { list.innerHTML = '<p class="card-muted">Add something to look forward to ♡</p>'; return; }
+    list.innerHTML = snap.docs.map(d => {
+      const r = d.data(); const id = d.id;
+      return `<div class="goal-item">
+        <div class="goal-cb${r.done?' done':''}" onclick="toggleGoal('${id}',this)">${r.done?'✓':''}</div>
+        <div class="goal-txt${r.done?' done':''}">${r.text}</div>
+        <div class="goal-del" onclick="delGoal('${id}',this.parentElement)">×</div>
+      </div>`;
+    }).join('');
+  } catch(e) { list.innerHTML = '<p class="card-muted">Could not load list.</p>'; }
+}
+window.toggleGoal = async function(id, cb) {
+  const done = !cb.classList.contains('done');
+  cb.classList.toggle('done', done);
+  cb.textContent = done ? '✓' : '';
+  const txt = cb.nextElementSibling;
+  if (txt) txt.classList.toggle('done', done);
+  try { await updateDoc(doc(db,'goals',id), { done }); } catch(e) {}
+};
+window.delGoal = async function(id, el) {
+  el.remove();
+  try { await deleteDoc(doc(db,'goals',id)); } catch(e) {}
+};
+</script>
+</body>
+</html>
